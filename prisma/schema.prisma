@@ -1,0 +1,39 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurant {
+  id                  String     @id @default(uuid()) // cria uma coluna chamada "id". o "@" indica ser uma Primary Key. "uuid" indica que o padrão será um id aleatório.
+  name                String
+  imageUrl            String
+  deliveryFree        Decimal    @db.Decimal(10, 2) // "@db.Decimal(10,2)" diz para o banco que queremos no formato decimal e terá até 10 casas antes da vírgula e até 2 casas depois
+  deliveryTimeMinutes Int
+  categories          Category[] // Um restaurante tem uma lista de categorias. Não é salvo no banco. ë uma referencia de relação para o prisma e ele irá criar uma tabela intermediária.
+  Products            Product[]
+}
+
+model Category {
+  id          String       @id @default(uuid())
+  name        String
+  imageUrl    String
+  restaurants Restaurant[] // uma gategoria tem uma lista de restaurantes
+  Products    Product[]
+}
+
+model Product {
+  id                 String     @id @default(uuid())
+  name               String
+  description        String
+  imageUrl           String
+  price              Decimal    @db.Decimal(10, 2)
+  discountPercentage Int        @default(0)
+  restaurantId       String
+  restaurant         Restaurant @relation(fields: [restaurantId], references: [id])
+  categoryId         String
+  category           Category   @relation(fields: [categoryId], references: [id])
+}
